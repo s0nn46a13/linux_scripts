@@ -2,7 +2,7 @@
 sudo yum -y update
 
 # Install common tools
-sudo yum -y install open-vm-tools yum-utils nano wget git mlocate gzip
+sudo yum -y install open-vm-tools yum-utils nano wget git mlocate
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo yum-config-manager --enable epel
 
