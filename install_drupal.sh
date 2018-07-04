@@ -33,6 +33,10 @@ sudo yum -y install mariadb mariadb-server mariadb-devel MariaDB-shared
 # Start, secure, & create DB
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
+sudo mysql --user=root -e "create database drupaldb;"
+sudo mysql --user=root -e "create user drupal@localhost identified by 'Drupal8DB';"
+sudo mysql --user=root -e "grant all on drupaldb.* to drupal@localhost;"
+sudo mysql --user=root -e "flush privileges;"
 sudo mysql_secure_installation << EOF
 y
 Drupal8DB
@@ -42,10 +46,6 @@ y
 y
 y
 EOF
-sudo mysql -u root -pDrupal8DB -e "create database drupaldb;"
-sudo mysql -u root -pDrupal8DB -e "create user drupal@localhost identified by 'Drupal8DB';"
-sudo mysql -u root -pDrupal8DB -e "grant all on drupaldb.* to drupal@localhost;"
-sudo mysql -u root -pDrupal8DB -e "flush privileges;"
 
 # Install Drupal8DB
 sudo wget -c https://ftp.drupal.org/files/projects/drupal-8.5.4.tar.gz
