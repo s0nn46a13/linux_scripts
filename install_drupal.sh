@@ -30,11 +30,10 @@ gpgcheck=1
 EOF
 sudo yum -y install mariadb mariadb-server mariadb-devel MariaDB-shared
 
-# Start, configure, & create DB
+# Start, secure, & create DB
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 sudo mysql_secure_installation << EOF
-
 y
 Drupal8DB
 Drupal8DB
@@ -43,20 +42,16 @@ y
 y
 y
 EOF
-sudo mysql -u root -p << EOF
-Drupal8DB
-create database drupaldb;
-create user drupal@localhost identified by 'Drupal8DB';
-grant all on drupaldb.* to drupal@localhost;
-flush privileges;
-exit
-EOF
+sudo mysql -u root -pDrupal8DB -e "create database drupaldb;"
+sudo mysql -u root -pDrupal8DB -e "create user drupal@localhost identified by 'Drupal8DB';"
+sudo mysql -u root -pDrupal8DB -e "grant all on drupaldb.* to drupal@localhost;"
+sudo mysql -u root -pDrupal8DB -e "flush privileges;"
 
 # Install Drupal8DB
 sudo wget -c https://ftp.drupal.org/files/projects/drupal-8.5.4.tar.gz
 sudo tar -zxvf drupal-8.5.4.tar.gz
 sudo mv drupal-8.5.4 /var/www/html/drupal
-sudo cd /var/www/html/drupal/sites/default/
+cd /var/www/html/drupal/sites/default/
 sudo cp default.settings.php settings.php
 sudo chown -R apache:apache /var/www/html/drupal/
 sudo chcon -R -t httpd_sys_content_rw_t /var/www/html/drupal/sites/ # Set SELinux rule for Drupal folder
@@ -65,4 +60,6 @@ sudo chcon -R -t httpd_sys_content_rw_t /var/www/html/drupal/sites/ # Set SELinu
 # Go to http://192.168.0.57/drupal, choose language and profile.
 sudo nano /etc/httpd/conf/httpd.conf
 # Set AllowOverride to All under <Directory "/var/www/html">
+
+sudo systemctl restart mariadb
 sudo systemctl restart httpd
