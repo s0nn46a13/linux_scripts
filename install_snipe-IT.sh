@@ -1,14 +1,26 @@
-sudo yum install open-vm-tools yum-utils net-tools nano wget git mlocate httpd -y
-sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -y
-sudo yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
-yum-config-manager --enable remi-php72 -y
-sudo yum install php php-openssl php-pdo php-mbstring php-tokenizer php-curl php-mysql php-ldap php-zip php-fileinfo php-gd php-gd php-dom php-mcrypt php-bcmath -y
-sudo yum update -y
+# Update OS
+sudo yum -y update
 
-sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
+# Install common tools
+sudo yum -y install open-vm-tools yum-utils nano wget git mlocate
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum-config-manager --enable epel
 
+# Install Apache, disable SELinux, and open ports
+sudo yum -y install httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
 sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+sudo firewall-cmd --permanent --zone=public --add-service=http
+sudo firewall-cmd --permanent --zone=public --add-service=https
+sudo firewall-cmd --reload
 
+# Install PHP 7.2
+sudo yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+sudo yum-config-manager --enable remi-php72
+sudo yum -y install php php-openssl php-pdo php-mbstring php-tokenizer php-curl php-mysql php-ldap php-zip php-fileinfo php-gd php-gd php-dom php-mcrypt php-bcmath
+
+# Install MariaDB
 sudo cat << EOF >/etc/yum.repos.d/MariaDB.repo
 [mariadb]
 name = MariaDB
@@ -16,17 +28,15 @@ baseurl = http://yum.mariadb.org/10.1/centos7-amd64
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 EOF
+sudo yum -y install mariadb mariadb-server mariadb-devel MariaDB-shared
 
-sudo yum install mariadb-server mariadb-client -y
-
-sudo systemctl enable httpd
-sudo systemctl start httpd
-
-sudo systemctl enable mariadb
+# Start, secure, & create DB
 sudo systemctl start mariadb
-
-sudo useradd -g apache snipe_user
-
+sudo systemctl enable mariadb
+sudo mysql --user=root -e "CREATE DATABASE snipedb;"
+sudo mysql --user=root -e "CREATE USER 'snipe_user'@'localhost' IDENTIFIED BY 'snipeitdb';"
+sudo mysql --user=root -e "GRANT ALL PRIVILEGES ON snipedb.* TO 'snipe_user'@'localhost';"
+sudo mysql --user=root -e "FLUSH PRIVILEGES;"
 sudo mysql_secure_installation << EOF
 
 y
@@ -38,13 +48,7 @@ y
 y
 EOF
 
-sudo mysql -u root -psnipeitdb << EOF
-CREATE DATABASE snipedb;
-CREATE USER 'snipe_user'@'localhost' IDENTIFIED BY 'snipeitdb';
-GRANT ALL PRIVILEGES ON snipedb.* TO 'snipe_user'@'localhost';
-FLUSH PRIVILEGES;
-exit
-EOF
+sudo useradd -g apache snipe_user
 
 sudo mkdir /var/www/snipe-it
 sudo git clone https://github.com/snipe/snipe-it /var/www/snipe-it
@@ -86,7 +90,7 @@ EOF
 
 sudo cat << EOF >/etc/httpd/conf.d/snipeit.teamscci.local.conf
 <VirtualHost *:80>
-	ServerName snipe-it.teamscci.local
+	ServerName snipe.sonny.local
 	DocumentRoot /var/www/snipe-it/public
 	<Directory /var/www/snipe-it/public>
 		AllowOverride All
