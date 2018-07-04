@@ -38,6 +38,7 @@ sudo mysql --user=root -e "create user drupal@localhost identified by 'Drupal8DB
 sudo mysql --user=root -e "grant all on drupaldb.* to drupal@localhost;"
 sudo mysql --user=root -e "flush privileges;"
 sudo mysql_secure_installation << EOF
+
 y
 Drupal8DB
 Drupal8DB
