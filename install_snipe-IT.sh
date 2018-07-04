@@ -90,7 +90,7 @@ EOF
 
 sudo cat << EOF >/etc/httpd/conf.d/snipeit.teamscci.local.conf
 <VirtualHost *:80>
-	ServerName snipe.sonny.local
+	ServerName snipe-it.sonny.local
 	DocumentRoot /var/www/snipe-it/public
 	<Directory /var/www/snipe-it/public>
 		AllowOverride All
