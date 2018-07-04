@@ -57,5 +57,4 @@ sudo cp default.settings.php settings.php
 sudo chown -R apache:apache /var/www/html/drupal/
 sudo chcon -R -t httpd_sys_content_rw_t /var/www/html/drupal/sites/ # Set SELinux rule for Drupal folder
 sudo sed -i '151 s/None/All/' /etc/httpd/conf/httpd.conf
-sudo systemctl restart mariadb
-sudo systemctl restart httpd
+reboot
