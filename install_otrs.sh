@@ -34,8 +34,23 @@ sudo sed -i "\$amax_allowed_packet   = 64M" /etc/my.cnf
 sudo sed -i "\$aquery_cache_size     = 32M" /etc/my.cnf
 sudo sed -i "\$ainnodb_log_file_size = 256M" /etc/my.cnf
 
+# Start, secure, & create DB
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
+sudo mysql --user=root -e "create database otrsdb;"
+sudo mysql --user=root -e "create user otrs_usr@localhost identified by 'otrs60801';"
+sudo mysql --user=root -e "grant all on otrsdb.* to otrs_usr@localhost;"
+sudo mysql --user=root -e "flush privileges;"
+sudo mysql_secure_installation << EOF
+
+y
+otrs60801
+otrs60801
+y
+y
+y
+y
+EOF
 
 # Install OTRS
 sudo yum -y install https://ftp.otrs.org/pub/otrs/RPMS/rhel/7/otrs-6.0.8-01.noarch.rpm
