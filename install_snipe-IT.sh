@@ -64,17 +64,22 @@ sudo chmod -R 777 /var/www/snipe-it/public/uploads
 sudo cp /var/www/snipe-it/.env.example /var/www/snipe-it/.env
 sudo sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' /var/www/snipe-it/.env
 sudo sed -i 's/APP_TIMEZONE='\'UTC\''/APP_TIMEZONE=America\/Chicago/g' /var/www/snipe-it/.env
+# Change http:\/\/<YOUR HOSTNAME>.<DOMAIN>.<LOCAL>
 sudo sed -i 's/APP_URL=null/APP_URL=http:\/\/<YOUR HOSTNAME>.<DOMAIN>.<LOCAL>/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_HOST=127.0.0.1/DB_HOST=localhost/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_DATABASE=null/DB_DATABASE=snipedb/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_USERNAME=null/DB_USERNAME=snipe_user/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_PASSWORD=null/DB_PASSWORD=snipeitdb/g' /var/www/snipe-it/.env
+# Change <MAILSERVER>.<DOMAIN>.<LOCAL>
 sudo sed -i 's/MAIL_HOST=email-smtp.us-west-2.amazonaws.com/MAIL_HOST=<MAILSERVER>.<DOMAIN>.<LOCAL>/g' /var/www/snipe-it/.env
+# Change <MAILSERVER_PORT>
 sudo sed -i 's/MAIL_PORT=587/MAIL_PORT=<MAILSERVER_PORT>/g' /var/www/snipe-it/.env
 sudo sed -i 's/MAIL_USERNAME=YOURUSERNAME/MAIL_USERNAME=/g' /var/www/snipe-it/.env
 sudo sed -i 's/MAIL_PASSWORD=YOURPASSWORD/MAIL_PASSWORD=/g' /var/www/snipe-it/.env
 sudo sed -i 's/MAIL_ENCRYPTION=null/MAIL_ENCRYPTION=/g' /var/www/snipe-it/.env
+# Change <NAME@MAIL.COM>
 sudo sed -i 's/you@example.com/<NAME@MAIL.COM>/g' /var/www/snipe-it/.env
+# Change <ACCOUNT_NAME>
 sudo sed -i 's/''Snipe-IT''/''<ACCOUNT_NAME>''/g' /var/www/snipe-it/.env
 sudo sed -i 's/SESSION_LIFETIME=12000/SESSION_LIFETIME=900/g' /var/www/snipe-it/.env
 sudo sed -i 's/EXPIRE_ON_CLOSE=false/EXPIRE_ON_CLOSE=true/g' /var/www/snipe-it/.env
@@ -88,9 +93,10 @@ sudo php artisan key:generate << EOF
 yes
 EOF
 
-sudo cat << EOF >/etc/httpd/conf.d/snipeit.teamscci.local.conf
+# Change <HOST>.<LOCALDOMAIN>.<DOMAIN> i.e. snipeit.name.com
+sudo cat << EOF >/etc/httpd/conf.d/<HOST>.<LOCALDOMAIN>.<DOMAIN>.conf
 <VirtualHost *:80>
-	ServerName snipe-it.<DOMAIN>.<LOCAL>
+	ServerName <HOST>.<LOCALDOMAIN>.<DOMAIN>
 	DocumentRoot /var/www/snipe-it/public
 	<Directory /var/www/snipe-it/public>
 		AllowOverride All
