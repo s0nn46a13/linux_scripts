@@ -10,7 +10,7 @@ sudo yum-config-manager --enable epel
 sudo yum -y install httpd
 sudo systemctl start httpd
 sudo systemctl enable httpd
-#sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 sudo firewall-cmd --permanent --zone=public --add-service=http
 sudo firewall-cmd --permanent --zone=public --add-service=https
 sudo firewall-cmd --reload
