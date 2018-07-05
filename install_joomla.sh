@@ -30,9 +30,13 @@ gpgcheck=1
 EOF
 sudo yum -y install mariadb mariadb-server mariadb-devel MariaDB-shared
 
-# Start, configure, & create DB
+# Start, create, & secure DB
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
+sudo mysql --user=root -e "create database joomladb;"
+sudo mysql --user=root -e "create user joomla@localhost identified by 'Joomla!3.8DB';"
+sudo mysql --user=root -e "grant all on joomladb.* to joomla@localhost;"
+sudo mysql --user=root -e "flush privileges;"
 sudo mysql_secure_installation << EOF
 
 y
@@ -43,14 +47,6 @@ y
 y
 y
 EOF
-sudo mysql -u root -p << EOF
-Joomla!3.8DB
-create database joomladb;
-create user joomla@localhost identified by 'Joomla!3.8DB';
-grant all on joomladb.* to joomla@localhost;
-flush privileges;
-exit
-EOF
 
 # Install Joomla
 sudo wget -c https://downloads.joomla.org/cms/joomla3/3-8-10/Joomla_3-8-10-Stable-Full_Package.tar.gz
@@ -59,5 +55,4 @@ sudo tar -zxvf Joomla_3-8-10-Stable-Full_Package.tar.gz  -C /var/www/html/joomla
 chown -R apache:apache /var/www/html/joomla
 sudo chcon -R -t httpd_sys_content_rw_t /var/www/html/joomla # Set SELinux rule for Joomla folder
 
-# Configure Web UI
-# Go to http://192.168.0.58/joomla
+# Go to http://<IP ADDRESS>/joomla
