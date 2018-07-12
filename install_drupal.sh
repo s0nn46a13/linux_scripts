@@ -27,7 +27,7 @@ sudo yum -y install php php-mbstring php-gd php-xml php-pear php-fpm php-mysql p
 sudo git clone https://github.com/Jan-E/uploadprogress
 cd uploadprogress/
 sudo phpize
-./configure
+sudo ./configure
 sudo make
 sudo make install
 sudo echo "extension=uploadprogress.so" > /etc/php.ini
