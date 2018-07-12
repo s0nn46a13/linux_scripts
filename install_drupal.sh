@@ -69,7 +69,7 @@ sudo cp default.settings.php settings.php
 sudo cp default.services.yml services.yml
 sudo sed -i '25 s/cookie_lifetime: 2000000/cookie_lifetime: 0/' /var/www/html/drupal/sites/default/services.yml
 sudo sed -i "\$a$settings['trusted_host_patterns'] = [" /var/www/html/drupal/sites/default/settings.php
-sudo sed -i "\$a'^ilsaus-webdevIT$'," /var/www/html/drupal/sites/default/settings.php
+sudo sed -i "\$a'^ACTUAL_HOSTNAME$'," /var/www/html/drupal/sites/default/settings.php
 sudo sed -i "\$a];" /var/www/html/drupal/sites/default/settings.php
 sudo chown -R apache:apache /var/www/html/drupal/
 sudo chcon -R -t httpd_sys_content_rw_t /var/www/html/drupal/sites/ # Set SELinux rule for Drupal folder
