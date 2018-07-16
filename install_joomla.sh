@@ -52,7 +52,7 @@ EOF
 sudo wget -c https://downloads.joomla.org/cms/joomla3/3-8-10/Joomla_3-8-10-Stable-Full_Package.tar.gz
 sudo mkdir /var/www/html/joomla
 sudo tar -zxvf Joomla_3-8-10-Stable-Full_Package.tar.gz  -C /var/www/html/joomla
-chown -R apache:apache /var/www/html/joomla
+sudo chown -R apache:apache /var/www/html/joomla
 sudo chcon -R -t httpd_sys_content_rw_t /var/www/html/joomla # Set SELinux rule for Joomla folder
 
 # Go to http://<IP ADDRESS>/joomla
