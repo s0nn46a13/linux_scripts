@@ -17,17 +17,24 @@ sudo yum -y update
 cd /etc/yum.repos.d/
 sudo wget http://packages.ntop.org/centos-stable/ntop.repo -O ntop.repo
 
-# Install redis and ntopng
+# Install redis
 sudo yum -y install redis hiredis-devel
+
+# Configure redis
+sudo sed -i 's/dbfilename dump.rdb/dbfilename ntopng.rdb/' /etc/redis.conf
+sudo sed -i 's/dir \/var\/lib\/redis/dir \/var\/db\/ntopng/' /etc/redis.conf
+
+# Install ntopng
 sudo yum -y install pfring n2disk nprobe ntopng ntopng-data cento
 
 # Configure ntopng
-sudo sed -i "\$a--dns-mode=1" /etc/ntopng/ntopng.conf
-sudo sed -i "\$a--interface=ens224" /etc/ntopng/ntopng.conf
-sudo sed -i "\$a--data-dir=/var/tmp/ntopng" /etc/ntopng/ntopng.conf
-sudo sed -i "\$a--daemon" /etc/ntopng/ntopng.conf
-sudo sed -i "\$a--local-networks=\"192.168.0.0/23,172.16.0.0/16\"" /etc/ntopng/ntopng.conf
-sudo sed -i "\$a--http-prefix=\"/ntopng\"" /etc/ntopng/ntopng.conf
+sudo sed -i "\$a-d=/var/db/ntopng" /etc/ntopng/ntopng.conf
+sudo sed -i "\$a-s=" /etc/ntopng/ntopng.conf
+sudo sed -i "\$a-e=" /etc/ntopng/ntopng.conf
+sudo sed -i "\$a-w=3000" /etc/ntopng/ntopng.conf
+sudo sed -i "\$a-i='ens224'" /etc/ntopng/ntopng.conf
+sudo sed -i "\$a--dns-mode='1'" /etc/ntopng/ntopng.conf
+sudo sed -i "\$a--local-networks='192.168.0.0/23,172.16.0.0/16'" /etc/ntopng/ntopng.conf
 
 # Start redis
 sudo systemctl enable redis
@@ -39,14 +46,26 @@ sudo systemctl start ntopng
 
 # Configure Apache proxy
 sudo cat << EOF >/etc/httpd/conf.d/ntopng.conf
-ProxyPass /ntopng http://localhost:3000/ntopng
-ProxyPassReverse /ntopng http://localhost:3000/ntopng
-<Location /ntopng>
-SetOutputFilter  proxy-html
-ProxyHTMLURLMap / /ntopng/
-ProxyHTMLURLMap /ntopng/plugins/ntopng/ /ntopng/plugins/
-RequestHeader unset Accept-Encoding
-</Location>
+<VirtualHost *:80>
+    ServerAdmin admin
+    ServerName ntopng.teamscci.local
+    ServerAlias ntopng
+
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+    ProxyRequests Off
+    RewriteEngine On
+
+    ProxyPass / http://localhost:3000/ retry=0 timeout=5
+    ProxyPassReverse / http://localhost:3000/
+
+    <Location />
+        Order allow,deny
+        Allow from all
+    </Location>
+</VirtualHost>
 EOF
 sudo systemctl restart httpd
 
