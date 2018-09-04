@@ -1,0 +1,34 @@
+sudo yum -y install open-vm-tools yum-utils nano wget git mlocate ethtool mod_proxy_html
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+sudo yum clean all
+sudo yum -y update
+
+sudo sed -i 's/# include/include/' /etc/nanorc
+sudo sed -i "\$aset const" /etc/nanorc
+sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+
+sudo sed -i "\$a192.168.0.240	managernode" /etc/hosts
+sudo sed -i "\$a192.168.0.241	workernode1" /etc/hosts
+sudo sed -i "\$a192.168.0.242	workernode2" /etc/hosts
+
+#sudo hostnamectl set-hostname managernode
+#sudo hostnamectl set-hostname workernode1
+#sudo hostnamectl set-hostname workernode2
+
+sudo wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker.repo
+
+sudo yum -y install docker-ce
+
+systemctl start docker
+systemctl enable docker
+
+sudo firewall-cmd --permanent --add-port=2376/tcp
+sudo firewall-cmd --permanent --add-port=2377/tcp
+sudo firewall-cmd --permanent --add-port=7946/tcp
+sudo firewall-cmd --permanent --add-port=80/tcp
+sudo firewall-cmd --permanent --add-port=7946/udp
+sudo firewall-cmd --permanent --add-port=4789/udp
+
+sudo firewall-cmd --reload
+sudo systemctl restart docker
