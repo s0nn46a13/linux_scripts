@@ -1,3 +1,5 @@
+#! /usr/bin/env bash
+
 #   Do not run this as root!
 #   Do not run this as root!
 #   Do not run this as root!
