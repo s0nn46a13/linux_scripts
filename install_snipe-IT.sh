@@ -53,10 +53,10 @@ sudo yum -y install mariadb mariadb-server mariadb-devel MariaDB-shared
 # Start, secure, & create DB
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
-sudo mysql --user=root -e "CREATE DATABASE snipedb;"
-sudo mysql --user=root -e "CREATE USER 'snipe_user'@'localhost' IDENTIFIED BY 'snipeitdb';"
-sudo mysql --user=root -e "GRANT ALL PRIVILEGES ON snipedb.* TO 'snipe_user'@'localhost';"
-sudo mysql --user=root -e "FLUSH PRIVILEGES;"
+sudo mysql --user=root -e "create database snipedb;"
+sudo mysql --user=root -e "create user 'snipe_user'@'localhost' identified by 'snipeitdb';"
+sudo mysql --user=root -e "grant all privileges on snipedb.* to 'snipe_user'@'localhost';"
+sudo mysql --user=root -e "flush privileges;"
 sudo mysql_secure_installation << EOF
 
 y
