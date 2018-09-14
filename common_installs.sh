@@ -6,9 +6,11 @@
 #   Do not run this as root!
 
 # Install common tools
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo yum-config-manager --enable epel
-sudo yum -y install open-vm-tools yum-utils nano wget git mlocate yum-cron
+sudo yum -y install open-vm-tools yum-utils nano wget git mlocate yum-cron epel-release
+
+# Upgrade OS
+sudo yum clean all
+sudo yum -y upgrade
 
 # Enable nano color coding
 sudo sed -i 's/# include/include/' /etc/nanorc
@@ -23,29 +25,37 @@ sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.c
 sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/emit_via = stdio/emit_via = email/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/email_from = root/email_from = noreply/g' /etc/yum/yum-cron.conf
-# Change <NAME@MAIL.COM>
-sudo sed -i 's/email_to = root/email_to = <NAME@MAIL.COM>/g' /etc/yum/yum-cron.conf
-# Change <MAILSERVER>.<DOMAIN>.<LOCAL>
-sudo sed -i 's/email_host = localhost/email_host = <MAILSERVER>.<DOMAIN>.<LOCAL>/g' /etc/yum/yum-cron.conf
+sudo sed -i 's/email_to = root/email_to = scciadit@teamscci.com/g' /etc/yum/yum-cron.conf
+sudo sed -i 's/email_host = localhost/email_host = ilsausmail.teamscci.local/g' /etc/yum/yum-cron.conf
 sudo systemctl start yum-cron
 sudo systemctl enable yum-cron
 
-# Upgrade OS
-sudo yum clean all
-sudo yum -y upgrade
-
-# Firewall settings
+# Install Apache, disable SELinux, and open ports
+sudo yum -y install httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
 sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 sudo firewall-cmd --permanent --zone=public --add-service=http
 sudo firewall-cmd --permanent --zone=public --add-service=https
 sudo firewall-cmd --reload
 
-# Optional Installs
-# Install PHP 7.2
+# OPTIONAL Install PHP 7.2
 <#
 sudo yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 sudo yum-config-manager --enable remi-php72
 sudo yum -y install php php-openssl php-pdo php-mbstring php-tokenizer php-curl php-mysql php-ldap php-zip php-fileinfo php-gd php-gd php-dom php-mcrypt php-bcmath
+#>
+
+# OPTIONAL Install MariaDB
+<#
+sudo cat << EOF >/etc/yum.repos.d/MariaDB.repo
+[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.1/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+EOF
+sudo yum -y install mariadb mariadb-server mariadb-devel MariaDB-shared
 #>
 
 # Start, create, and secure DB
