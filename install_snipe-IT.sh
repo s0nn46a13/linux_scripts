@@ -6,9 +6,11 @@
 #   Do not run this as root!
 
 # Install common tools
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo yum-config-manager --enable epel
-sudo yum -y install open-vm-tools yum-utils nano wget git mlocate yum-cron
+sudo yum -y install open-vm-tools yum-utils nano wget git mlocate yum-cron epel-release
+
+# Upgrade OS
+sudo yum clean all
+sudo yum -y upgrade
 
 # Enable nano color coding
 sudo sed -i 's/# include/include/' /etc/nanorc
@@ -27,10 +29,6 @@ sudo sed -i 's/email_to = root/email_to = scciadit@teamscci.com/g' /etc/yum/yum-
 sudo sed -i 's/email_host = localhost/email_host = ilsausmail.teamscci.local/g' /etc/yum/yum-cron.conf
 sudo systemctl start yum-cron
 sudo systemctl enable yum-cron
-
-# Upgrade OS
-sudo yum clean all
-sudo yum -y upgrade
 
 # Install Apache, disable SELinux, and open ports
 sudo yum -y install httpd
@@ -56,7 +54,7 @@ gpgcheck=1
 EOF
 sudo yum -y install mariadb mariadb-server mariadb-devel MariaDB-shared
 
-# Start, secure, & create DB
+# Start, create, & secure DB
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 sudo mysql --user=root -e "create database snipedb;"
@@ -76,16 +74,16 @@ EOF
 
 sudo useradd -g apache snipe_user
 
-sudo mkdir /var/www/snipe-it
-sudo git clone https://github.com/snipe/snipe-it /var/www/snipe-it
+sudo mkdir -p /var/www/snipeit
+sudo git clone https://github.com/snipe/snipeit /var/www/snipeit
 
-sudo cat << EOF >/var/www/snipe-it/storage/logs/laravel.log
+sudo cat << EOF >/var/www/snipeit/storage/logs/laravel.log
 EOF
 
-sudo chown -R snipe_user:apache /var/www/snipe-it/storage /var/www/snipe-it/public/uploads
-sudo chmod -R 777 /var/www/snipe-it/storage
-sudo chmod -R g+rwx /var/www/snipe-it/storage
-sudo chmod -R 777 /var/www/snipe-it/public/uploads
+sudo chown -R snipe_user:apache /var/www/snipeit/storage /var/www/snipeit/public/uploads
+sudo chmod -R 777 /var/www/snipeit/storage
+sudo chmod -R g+rwx /var/www/snipeit/storage
+sudo chmod -R 777 /var/www/snipeit/public/uploads
 
 sudo cp /var/www/snipe-it/.env.example /var/www/snipe-it/.env
 sudo sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' /var/www/snipe-it/.env
@@ -131,4 +129,5 @@ sudo cat << EOF >/etc/httpd/conf.d/<HOST>.<LOCALDOMAIN>.<DOMAIN>.conf
 </VirtualHost>
 EOF
 
+sudo yum clean all
 sudo reboot
