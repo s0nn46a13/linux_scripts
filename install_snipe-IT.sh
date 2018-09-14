@@ -5,6 +5,9 @@
 #   Do not run this as root!
 #   Do not run this as root!
 
+# Create directory for Snipe-IT
+sudo mkdir -p /var/www/snipeit
+
 # Install common tools
 sudo yum -y install open-vm-tools yum-utils nano wget git mlocate yum-cron epel-release
 
@@ -74,8 +77,6 @@ EOF
 
 sudo useradd -g apache snipe_user
 
-sudo mkdir /var/www
-sudo mkdir /var/www/snipeit
 sudo git clone https://github.com/snipe/snipeit /var/www/snipeit
 
 sudo cat << EOF >/var/www/snipeit/storage/logs/laravel.log
