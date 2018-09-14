@@ -6,7 +6,11 @@
 # Install common tools
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo yum-config-manager --enable epel
-sudo yum -y install open-vm-tools yum-utils nano wget git mlocate yum-cron powershell
+sudo yum -y install open-vm-tools yum-utils nano wget git mlocate yum-cron
+
+# Enable nano color coding
+sudo sed -i 's/# include/include/' /etc/nanorc
+sudo sed -i "\$aset const" /etc/nanorc
 
 # Install PowerShell Core
 curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
