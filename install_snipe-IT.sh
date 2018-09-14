@@ -74,7 +74,8 @@ EOF
 
 sudo useradd -g apache snipe_user
 
-sudo mkdir -p /var/www/snipeit
+sudo mkdir /var/www
+sudo mkdir /var/www/snipeit
 sudo git clone https://github.com/snipe/snipeit /var/www/snipeit
 
 sudo cat << EOF >/var/www/snipeit/storage/logs/laravel.log
