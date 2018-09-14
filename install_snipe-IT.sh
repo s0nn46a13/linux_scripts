@@ -25,8 +25,10 @@ sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.c
 sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/emit_via = stdio/emit_via = email/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/email_from = root/email_from = noreply/g' /etc/yum/yum-cron.conf
-sudo sed -i 's/email_to = root/email_to = scciadit@teamscci.com/g' /etc/yum/yum-cron.conf
-sudo sed -i 's/email_host = localhost/email_host = ilsausmail.teamscci.local/g' /etc/yum/yum-cron.conf
+# Change <USERNAME>@<DOMAIN>.<TLD>
+sudo sed -i 's/email_to = root/email_to = <USERNAME>@<DOMAIN>.<TLD>/g' /etc/yum/yum-cron.conf
+# Change <MAILSERVER>.<DOMAIN>.<TLD>
+sudo sed -i 's/email_host = localhost/email_host = <MAILSERVER>.<DOMAIN>.<TLD>/g' /etc/yum/yum-cron.conf
 sudo systemctl start yum-cron
 sudo systemctl enable yum-cron
 
@@ -77,47 +79,44 @@ sudo useradd -g apache snipe_user
 sudo mkdir /var/www/snipe-it
 sudo git clone https://github.com/snipe/snipe-it /var/www/snipe-it
 
+sudo mkdir /var/www/snipe-it/vendor
+
 touch /var/www/snipe-it/storage/logs/laravel.log
 
-sudo chown -R snipe_user:apache /var/www/snipe-it/storage /var/www/snipe-it/public/uploads
+sudo chown -R snipe_user:apache /var/www/snipe-it/storage /var/www/snipe-it/public/uploads /var/www/snipe-it/vendor
 sudo chmod -R 777 /var/www/snipe-it/storage
 sudo chmod -R g+rwx /var/www/snipe-it/storage
 sudo chmod -R 777 /var/www/snipe-it/public/uploads
+sudo chmod -R 777 /var/www/snipe-it/vendor
 
 sudo cp /var/www/snipe-it/.env.example /var/www/snipe-it/.env
 sudo sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' /var/www/snipe-it/.env
 sudo sed -i 's/APP_TIMEZONE='\'UTC\''/APP_TIMEZONE=America\/Chicago/g' /var/www/snipe-it/.env
-# Change http:\/\/<YOUR HOSTNAME>.<DOMAIN>.<LOCAL>
-sudo sed -i 's/APP_URL=null/APP_URL=http:\/\/snipeit.teamscci.local/g' /var/www/snipe-it/.env
+# Change http:\/\/<HOSTNAME>.<DOMAIN>.<TLD>
+sudo sed -i 's/APP_URL=null/APP_URL=http:\/\/<HOSTNAME>.<DOMAIN>.<TLD>/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_HOST=127.0.0.1/DB_HOST=localhost/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_DATABASE=null/DB_DATABASE=snipedb/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_USERNAME=null/DB_USERNAME=snipe_user/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_PASSWORD=null/DB_PASSWORD=snipeitdb/g' /var/www/snipe-it/.env
-# Change <MAILSERVER>.<DOMAIN>.<LOCAL>
-sudo sed -i 's/MAIL_HOST=email-smtp.us-west-2.amazonaws.com/MAIL_HOST=ilsausmail.teamscci.local/g' /var/www/snipe-it/.env
+# Change <MAILSERVER>.<DOMAIN>.<TLD>
+sudo sed -i 's/MAIL_HOST=email-smtp.us-west-2.amazonaws.com/MAIL_HOST=<MAILSERVER>.<DOMAIN>.<TLD>/g' /var/www/snipe-it/.env
 # Change <MAILSERVER_PORT>
-sudo sed -i 's/MAIL_PORT=587/MAIL_PORT=25/g' /var/www/snipe-it/.env
+sudo sed -i 's/MAIL_PORT=587/MAIL_PORT=<MAILSERVER_PORT>/g' /var/www/snipe-it/.env
 sudo sed -i 's/MAIL_USERNAME=YOURUSERNAME/MAIL_USERNAME=/g' /var/www/snipe-it/.env
 sudo sed -i 's/MAIL_PASSWORD=YOURPASSWORD/MAIL_PASSWORD=/g' /var/www/snipe-it/.env
 sudo sed -i 's/MAIL_ENCRYPTION=null/MAIL_ENCRYPTION=/g' /var/www/snipe-it/.env
-# Change <NAME@MAIL.COM>
-sudo sed -i 's/you@example.com/noreply@teamscci.com/g' /var/www/snipe-it/.env
+# Change <USERNAME>@<DOMAIN>.<TLD>
+sudo sed -i 's/you@example.com/<USERNAME>@<DOMAIN>.<TLD>/g' /var/www/snipe-it/.env
 # Change <ACCOUNT_NAME>
-sudo sed -i 's/''Snipe-IT''/''NoReply''/g' /var/www/snipe-it/.env
+sudo sed -i 's/''Snipe-IT''/''<ACCOUNT_NAME>''/g' /var/www/snipe-it/.env
 sudo sed -i 's/SESSION_LIFETIME=12000/SESSION_LIFETIME=900/g' /var/www/snipe-it/.env
 sudo sed -i 's/EXPIRE_ON_CLOSE=false/EXPIRE_ON_CLOSE=true/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_PASSWORD=null/DB_PASSWORD=snipeitdb/g' /var/www/snipe-it/.env
 
-cd /var/www/snipe-it
-curl -sS https://getcomposer.org/installer | sudo php
-php /var/www/snipe-it/composer.phar install --no-dev --prefer-source
-
-sudo php artisan key:generate --force --no-interaction
-
-# Change <HOST>.<LOCALDOMAIN>.<DOMAIN> i.e. snipeit.name.com
-sudo cat << EOF >/etc/httpd/conf.d/snipeit.teamscci.local.conf
+# Change <HOSTNAME>.<DOMAIN>.<TLD> i.e. snipeit.name.com
+sudo cat << EOF >/etc/httpd/conf.d/<HOSTNAME>.<DOMAIN>.<TLD>.conf
 <VirtualHost *:80>
-	ServerName snipeit.teamscci.local
+	ServerName <HOSTNAME>.<DOMAIN>.<TLD>
 	DocumentRoot /var/www/snipe-it/public
 	<Directory /var/www/snipe-it/public>
 		AllowOverride All
@@ -126,6 +125,14 @@ sudo cat << EOF >/etc/httpd/conf.d/snipeit.teamscci.local.conf
         Order allow,deny
 	</Directory>
 </VirtualHost>
+EOF
+
+cd /var/www/snipe-it
+curl -sS https://getcomposer.org/installer | sudo php
+php /var/www/snipe-it/composer.phar install --no-dev --prefer-source
+
+sudo php artisan key:generate << EOF
+yes
 EOF
 
 sudo yum clean all
