@@ -97,7 +97,7 @@ sudo sed -i 's/APP_URL=null/APP_URL=http:\/\/<HOSTNAME>.<DOMAIN>.<TLD>/g' /var/w
 sudo sed -i 's/DB_HOST=127.0.0.1/DB_HOST=localhost/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_DATABASE=null/DB_DATABASE=snipedb/g' /var/www/snipe-it/.env
 sudo sed -i 's/DB_USERNAME=null/DB_USERNAME=snipe_user/g' /var/www/snipe-it/.env
-sudo sed -i 's/DB_PASSWORD=null/DB_PASSWORD=snipeitdb/g' /var/www/snipe-it/.env
+sudo sed -i 's/DB_PASSWORD=null/DB_PASSWORD=snipe-itdb/g' /var/www/snipe-it/.env
 # Change <MAILSERVER>.<DOMAIN>.<TLD>
 sudo sed -i 's/MAIL_HOST=email-smtp.us-west-2.amazonaws.com/MAIL_HOST=<MAILSERVER>.<DOMAIN>.<TLD>/g' /var/www/snipe-it/.env
 # Change <MAILSERVER_PORT>
@@ -111,7 +111,6 @@ sudo sed -i 's/you@example.com/<USERNAME>@<DOMAIN>.<TLD>/g' /var/www/snipe-it/.e
 sudo sed -i 's/''Snipe-IT''/''<ACCOUNT_NAME>''/g' /var/www/snipe-it/.env
 sudo sed -i 's/SESSION_LIFETIME=12000/SESSION_LIFETIME=900/g' /var/www/snipe-it/.env
 sudo sed -i 's/EXPIRE_ON_CLOSE=false/EXPIRE_ON_CLOSE=true/g' /var/www/snipe-it/.env
-sudo sed -i 's/DB_PASSWORD=null/DB_PASSWORD=snipeitdb/g' /var/www/snipe-it/.env
 
 # Change <HOSTNAME>.<DOMAIN>.<TLD> i.e. snipeit.name.com
 sudo cat << EOF >/etc/httpd/conf.d/<HOSTNAME>.<DOMAIN>.<TLD>.conf
