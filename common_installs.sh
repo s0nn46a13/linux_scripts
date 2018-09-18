@@ -25,8 +25,10 @@ sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.c
 sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/emit_via = stdio/emit_via = email/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/email_from = root/email_from = noreply/g' /etc/yum/yum-cron.conf
-sudo sed -i 's/email_to = root/email_to = root/g' /etc/yum/yum-cron.conf
-sudo sed -i 's/email_host = localhost/email_host = localhost/g' /etc/yum/yum-cron.conf
+# Change <USERNAME>@<DOMAIN>.<TLD>
+sudo sed -i 's/email_to = root/email_to = <USERNAME>@<DOMAIN>.<TLD>/g' /etc/yum/yum-cron.conf
+# Change <MAILSERVER>.<DOMAIN>.<TLD>
+sudo sed -i 's/email_host = localhost/email_host = <MAILSERVER>.<DOMAIN>.<TLD>/g' /etc/yum/yum-cron.conf
 sudo systemctl start yum-cron
 sudo systemctl enable yum-cron
 
