@@ -1,0 +1,23 @@
+sudo yum -y install open-vm-tools yum-utils nano wget git mlocate ethtool yum-cron
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum clean all
+sudo yum -y update
+
+sudo sed -i 's/# include/include/' /etc/nanorc
+sudo sed -i "\$aset const" /etc/nanorc
+sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+
+sudo wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker.repo
+
+sudo yum -y install docker-ce
+
+sudo systemctl start docker
+sudo systemctl enable docker
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.21.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
+sudo chmod +x /usr/bin/docker-compose
+
+cd /usr/share
+sudo git clone https://github.com/elastic/stack-docker.git
+cd stack-docker
+docker-compose -f setup.yml up
