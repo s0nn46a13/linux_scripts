@@ -1,21 +1,19 @@
-sudo yum -y install open-vm-tools nano git wget gcc
+sudo yum -y install open-vm-tools nano git wget gcc gcc-c++ 
+sudo yum -y install zlib zlib-devel 
+sudo yum -y install libffi-devel 
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
-cd /usr/src
-wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
-gunzip Python-3.7.0.tgz && tar -xvf Python-3.7.0.tar
-cd Python-3.7.0
-./configure --prefix=/usr/local/
-sudo make altinstall
-sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
-sudo ln -s /usr/local/bin/python3.7 /usr/local/bin/python3
+curl 'https://setup.ius.io/' -o setup-ius.sh
+sh setup-ius.sh
+sudo yum --enablerepo=ius info python36u
+sudo yum --enablerepo=ius install python36u -y
 
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-python get-pip.py
+sudo yum -y install python-wheel python-pip
 
-#sudo yum -y install python37
-#sudo yum -y install python-pip
+pip install --upgrade pip
+pip install virtualenv
+pip install pyopenssl
 
 sudo sed -i 's/# include/include/' /etc/nanorc
 sudo sed -i "\$aset const" /etc/nanorc
