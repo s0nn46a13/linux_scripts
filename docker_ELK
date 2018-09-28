@@ -24,7 +24,13 @@ wget https://bootstrap.pypa.io/get-pip.py
 python3 get-pip.py
 python3 -m pip install --upgrade pip setuptools wheel
 python3 -m pip install virtualenv virtualenvwrapper docker-compose
-python3 -m pip install elasticsearch
+python3 -m pip install docker elasticsearch
+
+pip install docker==2.0.2
+pip install requests==2.6.1
+
+sudo yum -y install python-pip
+python -m pip install docker
 
 sudo sed -i 's/# include/include/' /etc/nanorc
 sudo sed -i "\$aset const" /etc/nanorc
@@ -49,5 +55,3 @@ sudo sed -i "\$aPWD=/usr/share/stack-docker" .env
 sudo sed -i 's/1.21.2/1.22.0/' setup.yml
 
 make
-
-sudo /usr/local/bin/docker-compose -f setup.yml up
