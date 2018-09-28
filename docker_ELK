@@ -7,21 +7,152 @@ sudo sed -i 's/# include/include/' /etc/nanorc
 sudo sed -i "\$aset const" /etc/nanorc
 sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
-sudo wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker.repo
+sudo firewall-cmd --permanent --add-port=9200/tcp
+sudo firewall-cmd --permanent --add-port=9300/tcp
+sudo firewall-cmd --permanent --add-port=5000/tcp
+sudo firewall-cmd --permanent --add-port=5601/tcp
 
+sudo wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker.repo
 sudo yum -y install docker-ce
 
 sudo systemctl start docker
 sudo systemctl enable docker
 
-sudo curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
-sudo chmod +x /usr/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
-cd /usr/share
-sudo git clone https://github.com/elastic/stack-docker.git
-cd stack-docker
+sudo cat << EOF >docker-compose.yml
+version: '3.6'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
+    container_name: elasticsearch
+    ports: ['9200:9200']
+    networks: ['stack']
+    volumes:
+      - 'es_data:/usr/share/elasticsearch/data'
 
-sudo sed -i 's/6.3.0/6.4.1/' /usr/share/stack-docker/.env
-sudo sed -i 's/1.21.2/1.20.2' /usr/share/stack-docker/setup.yml
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.4.1
+    container_name: kibana
+    ports: ['5601:5601']
+    networks: ['stack']
+    depends_on: ['elasticsearch']
 
-docker-compose -f setup.yml up
+  logstash:
+    image: docker.elastic.co/logstash/logstash:6.4.1
+    container_name: logstash
+    networks: ['stack']
+    depends_on: ['elasticsearch']
+    healthcheck:
+      test: bin/logstash -t
+      interval: 60s
+      timeout: 50s
+      retries: 5
+
+  auditbeat:
+    image: docker.elastic.co/beats/auditbeat:6.4.1
+    container_name: auditbeat
+    command: -e --strict.perms=false # -e flag to log to stderr and disable syslog/file output
+    cap_add: ['AUDIT_CONTROL', 'AUDIT_READ']
+    # Auditbeat must run in the main process namespace.
+    pid: host
+    networks: ['stack']
+    depends_on: ['elasticsearch', 'kibana']
+    healthcheck:
+      test: auditbeat --strict.perms=false test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:6.4.1
+    container_name: filebeat
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    # If the host system has logs at "/var/log", mount them at "/mnt/log"
+    # inside the container, where Filebeat can find them.
+    # volumes: ['/var/log:/mnt/log:ro']
+    networks: ['stack']
+    depends_on: ['elasticsearch', 'kibana']
+    healthcheck:
+      test: filebeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:6.4.1
+    container_name: heartbeat
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    networks: ['stack']
+    depends_on: ['elasticsearch', 'kibana']
+    healthcheck:
+      test: heartbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:6.4.1
+    container_name: metricbeat
+    # The commented sections below enable Metricbeat to monitor the Docker host,
+    # rather than the Metricbeat container. It's problematic with Docker for
+    # Windows, however, since "/proc", "/sys" etc. don't exist on Windows.
+    # The same likely applies to OSX (needs testing).
+    # volumes:
+    #   - /proc:/hostfs/proc:ro
+    #   - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+    #   - /:/hostfs:ro
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    networks: ['stack']
+    depends_on: ['elasticsearch', 'kibana']
+    healthcheck:
+      test: metricbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  packetbeat:
+    image: docker.elastic.co/beats/packetbeat:6.4.1
+    container_name: packetbeat
+    # Packetbeat needs some elevated privileges to capture network traffic.
+    # We'll grant them with POSIX capabilities.
+    cap_add: ['NET_RAW', 'NET_ADMIN']
+    # Use "host mode" networking to allow Packetbeat to capture traffic from
+    # the real network interface on the host, rather than being isolated to the
+    # container's virtual interface.
+    network_mode: host
+    # Since we did that, Packetbeat is not part of the "stack" Docker network
+    # that the other containers are connected to, and thus can't resolve the
+    # hostname "elasticsearch". Instead, we'll tell it to find Elasticsearch
+    # on "localhost", which is the Docker host machine in this context.
+    command: -e -E 'output.elasticsearch.hosts=["localhost:9200"]'
+    depends_on: ['elasticsearch']
+    command: --strict.perms=false -e -E output.elasticsearch.hosts="https://localhost:9200" # -e flag to log to stderr and disable syslog/file output
+    depends_on: ['elasticsearch', 'kibana']
+    healthcheck:
+      test: packetbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:6.4.1
+    container_name: apm_server
+    ports: ['8200:8200']
+    networks: ['stack']
+    command: --strict.perms=false -e  # -e flag to log to stderr and disable syslog/file output
+    depends_on: ['elasticsearch', 'kibana']
+    healthcheck:
+      test: curl --cacert /usr/share/elasticsearch/config/certs/ca/ca.crt -s https://localhost:8200/healthcheck >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks: {stack: {}}
+# use docker volume to persist ES data outside of a container.
+volumes:
+  es_data:
+EOF
+
+sudo /usr/local/bin/docker-compose -f docker-compose.yml up
