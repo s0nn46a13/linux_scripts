@@ -1,3 +1,5 @@
+#! /usr/bin/env bash
+
 sudo yum -y install open-vm-tools nano git wget gcc gcc-c++ java-1.8.0-openjdk java-1.8.0-openjdk-devel
 sudo yum -y install zlib zlib-devel 
 sudo yum -y install libffi-devel
