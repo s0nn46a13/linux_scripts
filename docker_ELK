@@ -8,10 +8,6 @@ sudo yum -y install openssl openssl-devel
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
-sudo sed -i 's/python2/python/' /usr/bin/yum
-sudo sed -i 's/python2/python/' /usr/libexec/urlgrabber-ext-down
-sudo sed -i 's/python2/python/' /bin/firewall-cmd
-
 cd /usr/src
 wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
 sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
