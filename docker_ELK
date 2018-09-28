@@ -13,7 +13,7 @@ wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
 sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
 
 cd Python-3.7.0
-./configure --prefix=/usr/local/
+./configure --prefix=/usr/local/ --enable-optimizations
 sudo make altinstall
 
 sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
