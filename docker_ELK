@@ -4,14 +4,19 @@ sudo yum -y install libffi-devel
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
-curl 'https://setup.ius.io/' -o setup-ius.sh
-sh setup-ius.sh
-sudo yum --enablerepo=ius info python36u
-sudo yum --enablerepo=ius install python36u -y
+cd /usr/src
+wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
+sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
 
-sudo yum -y install python-wheel python-pip
+cd Python-3.7.0
+./configure --prefix=/usr/local/
+sudo make altinstall
+
+sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
+sudo ln -s /usr/local/bin/python3.7 /usr/local/bin/python3
 
 pip install --upgrade pip
+pip install wheel
 pip install virtualenv
 pip install pyopenssl
 pip install docker-compose
@@ -41,3 +46,16 @@ sudo sed -i 's/1.21.2/1.22.0/' setup.yml
 make
 
 sudo /usr/local/bin/docker-compose -f setup.yml up
+
+#curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+#python get-pip.py
+
+#sudo yum -y install python-wheel python-pip
+
+#sudo curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#sudo chmod +x /usr/local/bin/docker-compose
+
+#curl 'https://setup.ius.io/' -o setup-ius.sh
+#sh setup-ius.sh
+#sudo yum --enablerepo=ius info python36u
+#sudo yum --enablerepo=ius install python36u -y
