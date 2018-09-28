@@ -1,23 +1,23 @@
 sudo yum -y install open-vm-tools nano git wget gcc gcc-c++ 
 sudo yum -y install zlib zlib-devel 
-sudo yum -y install libffi-devel 
+sudo yum -y install libffi-devel
+sudo yum -y install openssl openssl-devel 
+
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
-cd /usr/src
-wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
-sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
+sudo yum -y install centos-release-scl 
+sudo yum-config-manager --enable centos-sclo-rh-testing -y
+sudo yum-config-manager --enable rhel-server-rhscl-7-rpms -y
+sudo yum -y install rh-python36
+scl enable rh-python36 bash
 
-cd Python-3.7.0
-./configure --prefix=/usr/local/
-sudo make altinstall
+################ BREAKS HERE
 
-sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
-sudo ln -s /usr/local/bin/python3.7 /usr/local/bin/python3
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install virtualenv virtualenvwrapper
 
 pip install --upgrade pip
-pip install wheel
-pip install virtualenv
 pip install pyopenssl
 pip install docker-compose
 
@@ -59,3 +59,14 @@ sudo /usr/local/bin/docker-compose -f setup.yml up
 #sh setup-ius.sh
 #sudo yum --enablerepo=ius info python36u
 #sudo yum --enablerepo=ius install python36u -y
+
+#cd /usr/src
+#wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
+#sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
+
+#cd Python-3.7.0
+#./configure --prefix=/usr/local/
+#sudo make altinstall
+
+#sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
+#sudo ln -s /usr/local/bin/python3.7 /usr/local/bin/python3
