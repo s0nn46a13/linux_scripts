@@ -18,6 +18,10 @@ sudo make altinstall
 
 sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
 
+sudo sed -i 's/\$HOME\/bin/\$HOME\/bin:\/usr\/local\/bin/' /root/.bash_profile
+sudo sed -i 's/\$HOME\/bin/\$HOME\/bin:\/usr\/local\/bin/' /home/scci-admin/.bash_profile
+source /root/.bash_profile
+
 wget https://bootstrap.pypa.io/get-pip.py
 python3 get-pip.py
 python3 -m pip install --upgrade pip setuptools wheel
