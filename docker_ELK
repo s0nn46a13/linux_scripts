@@ -1,4 +1,4 @@
-sudo yum -y install open-vm-tools nano git wget gcc gcc-c++ 
+sudo yum -y install open-vm-tools nano git wget gcc gcc-c++ java-1.8.0-openjdk java-1.8.0-openjdk-devel
 sudo yum -y install zlib zlib-devel 
 sudo yum -y install libffi-devel
 sudo yum -y install openssl openssl-devel 
@@ -6,20 +6,25 @@ sudo yum -y install openssl openssl-devel
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sudo subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
-sudo yum -y install centos-release-scl 
-sudo yum-config-manager --enable centos-sclo-rh-testing -y
-sudo yum-config-manager --enable rhel-server-rhscl-7-rpms -y
-sudo yum -y install rh-python36
-scl enable rh-python36 bash
+sudo sed -i 's/python2/python/' /usr/bin/yum
+sudo sed -i 's/python2/python/' /usr/libexec/urlgrabber-ext-down
+sudo sed -i 's/python2/python/' /bin/firewall-cmd
 
-################ BREAKS HERE
+cd /usr/src
+wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
+sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
 
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install virtualenv virtualenvwrapper
+cd Python-3.7.0
+./configure --prefix=/usr/local/
+sudo make altinstall
 
-pip install --upgrade pip
-pip install pyopenssl
-pip install docker-compose
+sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
+
+wget https://bootstrap.pypa.io/get-pip.py
+python3 get-pip.py
+python3 -m pip install --upgrade pip setuptools wheel
+python3 -m pip install virtualenv virtualenvwrapper docker-compose
+python3 -m pip install elasticsearch
 
 sudo sed -i 's/# include/include/' /etc/nanorc
 sudo sed -i "\$aset const" /etc/nanorc
@@ -46,27 +51,3 @@ sudo sed -i 's/1.21.2/1.22.0/' setup.yml
 make
 
 sudo /usr/local/bin/docker-compose -f setup.yml up
-
-#curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-#python get-pip.py
-
-#sudo yum -y install python-wheel python-pip
-
-#sudo curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-#sudo chmod +x /usr/local/bin/docker-compose
-
-#curl 'https://setup.ius.io/' -o setup-ius.sh
-#sh setup-ius.sh
-#sudo yum --enablerepo=ius info python36u
-#sudo yum --enablerepo=ius install python36u -y
-
-#cd /usr/src
-#wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
-#sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
-
-#cd Python-3.7.0
-#./configure --prefix=/usr/local/
-#sudo make altinstall
-
-#sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
-#sudo ln -s /usr/local/bin/python3.7 /usr/local/bin/python3
