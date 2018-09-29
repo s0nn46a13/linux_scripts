@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
-sudo yum -y install open-vm-tools nano git wget gcc gcc-c++ java-1.8.0-openjdk java-1.8.0-openjdk-devel
+sudo yum -y install open-vm-tools nano git wget gcc gcc-c++ java-1.8.0-openjdk java-1.8.0-openjdk-devel yum-utils mlocate
+sudo yum-builddep python -y
 sudo yum -y install zlib zlib-devel 
 sudo yum -y install libffi-devel
 sudo yum -y install openssl openssl-devel 
@@ -9,27 +10,32 @@ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.
 sudo subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
 
 cd /usr/src
-wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
-sudo gunzip Python-3.7.0.tgz && sudo tar -xvf Python-3.7.0.tar
+wget https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz
+sudo gunzip Python-3.5.0.tgz && sudo tar -xvf Python-3.5.0.tar
 
-cd Python-3.7.0
+cd Python-3.5.0
 ./configure --prefix=/usr/local/ --enable-optimizations
 sudo make altinstall
 
-sudo ln -s /usr/local/bin/python3.7 /usr/bin/python3
+sudo ln -s /usr/local/bin/python3.5 /usr/bin/python3
 
-sudo sed -i 's/\$HOME\/bin/\$HOME\/bin:\/usr\/local\/bin/' /root/.bash_profile
-sudo sed -i 's/\$HOME\/bin/\$HOME\/bin:\/usr\/local\/bin/' /home/scci-admin/.bash_profile
-source /root/.bash_profile
+sudo sed -i "\$aalias python3='/usr/local/bin/python3.5'" ~/.bashrc
+sudo sed -i "\$aalias pip3='/usr/local/bin/pip3.5'" ~/.bashrc
+sudo sed -i "\$aalias sudo='sudo '" ~/.bashrc
+source ~/.bashrc
 
-wget https://bootstrap.pypa.io/get-pip.py
-python3 get-pip.py
-python3 -m pip install --upgrade pip setuptools wheel
-python3 -m pip install virtualenv virtualenvwrapper docker-compose
-python3 -m pip install docker elasticsearch
+sudo sed -i 's/\$HOME\/bin/\$HOME\/bin:\/usr\/local\/bin/' ~/.bash_profile
+source ~/.bash_profile
 
-pip install docker==2.0.2
-pip install requests==2.6.1
+sudo pip3 install --upgrade pip setuptools wheel 
+sudo pip3 install pipenv pip-tools
+
+sudo sed -i "\$aalias pip='/usr/local/bin/pipenv'" ~/.bashrc
+sudo ln -s /usr/local/bin/pipenv /usr/bin/pip
+source ~/.bash_profile
+source ~/.bashrc
+
+sudo pip install docker docker-composerequests elasticsearch
 
 sudo sed -i 's/# include/include/' /etc/nanorc
 sudo sed -i "\$aset const" /etc/nanorc
@@ -48,9 +54,5 @@ sudo systemctl enable docker
 cd /usr/share
 sudo git clone https://github.com/elastic/stack-docker.git
 cd stack-docker
-
-sudo sed -i 's/6.3.0/6.4.1/' .env
-sudo sed -i "\$aPWD=/usr/share/stack-docker" .env
-sudo sed -i 's/1.21.2/1.22.0/' setup.yml
 
 make
