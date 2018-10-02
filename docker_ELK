@@ -21,6 +21,7 @@ sudo ln -s /usr/local/bin/python3.5 /usr/bin/python3
 
 sudo sed -i "\$aalias python3='/usr/local/bin/python3.5'" ~/.bashrc
 sudo sed -i "\$aalias pip3='/usr/local/bin/pip3.5'" ~/.bashrc
+sudo sed -i "\$aalias pip='/usr/local/bin/pip3.5'" ~/.bashrc
 sudo sed -i "\$aalias sudo='sudo '" ~/.bashrc
 source ~/.bashrc
 
@@ -28,14 +29,7 @@ sudo sed -i 's/\$HOME\/bin/\$HOME\/bin:\/usr\/local\/bin/' ~/.bash_profile
 source ~/.bash_profile
 
 sudo pip3 install --upgrade pip setuptools wheel 
-sudo pip3 install pipenv pip-tools
-
-sudo sed -i "\$aalias pip='/usr/local/bin/pipenv'" ~/.bashrc
-sudo ln -s /usr/local/bin/pipenv /usr/bin/pip
-source ~/.bash_profile
-source ~/.bashrc
-
-sudo pip install docker docker-composerequests elasticsearch
+sudo pip3 install docker docker-compose elasticsearch
 
 sudo sed -i 's/# include/include/' /etc/nanorc
 sudo sed -i "\$aset const" /etc/nanorc
@@ -51,8 +45,14 @@ sudo yum -y install docker-ce
 sudo systemctl start docker
 sudo systemctl enable docker
 
+sudo sysctl -w vm.max_map_count=262144
+
 cd /usr/share
 sudo git clone https://github.com/elastic/stack-docker.git
 cd stack-docker
 
-make
+sudo sed -i 's/6.3.0/6.4.1/' .env
+sudo sed -i "\$aPWD=/usr/share/stack-docker" .env
+sudo sed -i 's/1.21.2/1.22.0/' setup.yml
+
+sudo /usr/local/bin/docker-compose -f setup.yml up
