@@ -32,6 +32,9 @@ EOF
 sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
 
+sudo systemctl enable yum-cron
+sudo systemctl start yum-cron
+
 # Disable SELinux and add firewall rules
 sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 sudo firewall-cmd --permanent --zone=public --add-service=http
