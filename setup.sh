@@ -3,11 +3,7 @@
 sudo yum upgrade -y
 
 # Enable Extra Packages for Enterprise Linux (EPEL)
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo subscription-manager repos --enable "rhel-*-optional-rpms" --enable "rhel-*-extras-rpms"
-
-# Standard installs
-sudo yum -y install open-vm-tools vim-enhanced git wget mlocate elinks yum-cron yum-utils 
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm open-vm-tools vim-enhanced git wget mlocate elinks yum-cron yum-utils 
 
 # Install PowerShell Core
 curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
@@ -40,3 +36,11 @@ sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 sudo firewall-cmd --permanent --zone=public --add-service=http
 sudo firewall-cmd --permanent --zone=public --add-service=https
 sudo firewall-cmd --reload
+
+sudo wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker.repo
+sudo yum -y install docker-ce
+
+sudo systemctl enable docker
+sudo systemctl start docker
+
+sudo usermod -aG docker sg-admin
