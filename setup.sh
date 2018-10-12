@@ -3,7 +3,7 @@
 sudo yum upgrade -y
 
 # Enable Extra Packages for Enterprise Linux (EPEL)
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm open-vm-tools vim-enhanced git wget mlocate elinks yum-cron yum-utils 
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm open-vm-tools git wget mlocate elinks yum-cron yum-utils 
 
 # Install PowerShell Core
 curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
