@@ -1,0 +1,33 @@
+#! /usr/bin/env bash
+
+# Enable Extra Packages for Enterprise Linux (PEL), install useful tools, and run updates
+sudo yum -y install epel-release
+sudo yum -y install open-vm-tools git wget mlocate elinks yum-cron yum-utils net-tools
+sudo yum -y update
+ 
+# Clean all cached files from any enabled repository
+sudo yum clean all
+sudo rm -rf /var/cache/yum
+
+# Enable colorscheme torte for user
+sudo cat << EOF >.vimrc
+syntax on
+colorscheme torte
+EOF
+
+# Enable colorscheme torte for root
+sudo cat << EOF >/root/.vimrc
+syntax on
+colorscheme torte
+EOF
+
+# Enable automatic security updates
+sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.conf
+sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
+
+sudo systemctl enable yum-cron
+sudo systemctl start yum-cron
+
+# Disable SELinux
+sudo setenforce 0
+sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
