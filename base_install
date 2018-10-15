@@ -27,7 +27,10 @@ sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
 
 sudo systemctl enable yum-cron
 sudo systemctl start yum-cron
+sudo systemctl daemon-reload
 
 # Disable SELinux
 sudo setenforce 0
 sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+
+sh add_kube.sh
