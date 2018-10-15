@@ -1,53 +1,27 @@
 #! /usr/bin/env bash
 
-sudo yum upgrade -y
+sudo sed -i "\$a192.168.x.x1 kube01" /etc/hosts
+sudo sed -i "\$a192.168.x.x2 kube02" /etc/hosts
+sudo sed -i "\$a192.168.x.x3 kube03" /etc/hosts
+sudo sed -i "\$a192.168.x.x4 kube04" /etc/hosts
+sudo sed -i "\$a192.168.x.x5 kube05" /etc/hosts
 
-# Enable Extra Packages for Enterprise Linux (EPEL)
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm open-vm-tools vim-enhanced git wget mlocate elinks yum-cron yum-utils 
+# Disable swap
+sudo swapoff -a
+sudo sed -i 's/\/dev\/mapper\/centos-swap/\#\/dev\/mapper\/centos-swap/g' /etc/fstab
 
-# Install PowerShell Core
-curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
-sudo yum -y install powershell
+# Enable br_netfilter
+sudo modprobe br_netfilter
+sudo echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
 
-# Clean all cached files from any enabled repository
-sudo yum clean all
-
-# Enable colorscheme torte for user
-sudo cat << EOF >.vimrc
-syntax on
-colorscheme torte
-EOF
-
-# Enable colorscheme torte for root
-sudo cat << EOF >/root/.vimrc
-syntax on
-colorscheme torte
-EOF
-
-# Enable automatic security updates
-sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.conf
-sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
-
-sudo systemctl enable yum-cron
-sudo systemctl start yum-cron
-
-# Disable SELinux and add firewall rules
-sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-sudo firewall-cmd --permanent --zone=public --add-service=http
-sudo firewall-cmd --permanent --zone=public --add-service=https
-sudo firewall-cmd --reload
-
+# Download, install, enable, start Docker, and add scci-admin to the docker group
 sudo wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker.repo
 sudo yum -y install docker-ce
-
 sudo systemctl enable docker
 sudo systemctl start docker
+sudo usermod -aG docker < username >
 
-sudo usermod -aG docker sg-admin
-
-sudo swapoff -a
-sudo sed -i 's//dev/mapper/centos-swap/#/dev/mapper/centos-swap/g' /etc/fstab
-
+# Add the Kubernetes repos and install kubelet, kubeadm, and kubectl
 sudo cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -58,15 +32,13 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 
-sudo yum install -y kubelet kubeadm kubectl flannel
+sudo yum install -y kubelet kubeadm kubectl
 
-sudo systemctl enable kubelet
-sudo systemctl starte kubelet
+# Cgroup changeku
+sudo sed -i 's/cgroup-driver=systemd/cgroup-driver=cgroupfs/g' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 
-sudo modprobe br_netfilter
-sudo echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
 
-sed -i 's/cgroup-driver=systemd/cgroup-driver=cgroupfs/g' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-
-systemctl daemon-reload
-kubeadm init --pod-network-cidr=10.244.0.0/16
+# Initialize Kubernetes cluster
+# https://www.techrepublic.com/article/how-to-install-a-kubernetes-cluster-on-centos-7/
