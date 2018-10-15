@@ -32,7 +32,6 @@ sudo systemctl enable yum-cron
 sudo systemctl start yum-cron
 
 # Disable SELinux and add firewall rules
-setenforce=0
 sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 sudo firewall-cmd --permanent --zone=public --add-service=http
 sudo firewall-cmd --permanent --zone=public --add-service=https
@@ -61,3 +60,13 @@ EOF
 
 sudo yum install -y kubelet kubeadm kubectl flannel
 
+sudo systemctl enable kubelet
+sudo systemctl starte kubelet
+
+sudo modprobe br_netfilter
+sudo echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+sed -i 's/cgroup-driver=systemd/cgroup-driver=cgroupfs/g' /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+systemctl daemon-reload
+kubeadm init --pod-network-cidr=10.244.0.0/16
