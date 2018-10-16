@@ -4,11 +4,11 @@ sudo systemctl stop firewalld
 sudo systemctl disable firewalld
 sudo systemctl daemon-reload
 
-sudo sed -i "\$a192.168.2.51 kube01" /etc/hosts
-sudo sed -i "\$a192.168.2.52 kube02" /etc/hosts
-sudo sed -i "\$a192.168.2.53 kube03" /etc/hosts
-sudo sed -i "\$a192.168.2.54 kube04" /etc/hosts
-sudo sed -i "\$a192.168.2.55 kube05" /etc/hosts
+sudo sed -i "\$a192.168.x.x1 kube01" /etc/hosts
+sudo sed -i "\$a192.168.x.x2 kube02" /etc/hosts
+sudo sed -i "\$a192.168.x.x3 kube03" /etc/hosts
+sudo sed -i "\$a192.168.x.x4 kube04" /etc/hosts
+sudo sed -i "\$a192.168.x.x5 kube05" /etc/hosts
 
 # Download, install, enable, start Docker, and add scci-admin to the docker group
 sudo wget https://download.docker.com/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker.repo
@@ -55,8 +55,9 @@ sudo modprobe ip_vs_rr
 sudo modprobe nf_conntrack_ipv4
 sudo modprobe br_netfilter
 sudo sysctl net.bridge.bridge-nf-call-iptables=1
+sudo sysctl net.ipv4.ip_forward=1
 
 # Initialize Kubernetes cluster
 # https://www.techrepublic.com/article/how-to-install-a-kubernetes-cluster-on-centos-7/
-sudo kubeadm init --apiserver-advertise-address=192.168.0.241 --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --apiserver-advertise-address=192.168.x.x1 --pod-network-cidr=10.244.0.0/16
 sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
