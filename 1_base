@@ -9,18 +9,6 @@ sudo yum -y update
 sudo yum clean all
 sudo rm -rf /var/cache/yum
 
-# Enable colorscheme torte for user
-sudo cat << EOF >.vimrc
-syntax on
-colorscheme torte
-EOF
-
-# Enable colorscheme torte for root
-sudo cat << EOF >/root/.vimrc
-syntax on
-colorscheme torte
-EOF
-
 # Enable automatic security updates
 sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
