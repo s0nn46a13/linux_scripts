@@ -4,6 +4,18 @@
 sudo yum -y install epel-release
 sudo yum -y install open-vm-tools git wget mlocate elinks yum-cron yum-utils net-tools
 sudo yum -y update
+
+# Enable colorscheme torte for user
+sudo cat << EOF >.vimrc
+syntax on
+colorscheme torte
+EOF
+
+# Enable colorscheme torte for root
+sudo cat << EOF >/root/.vimrc
+syntax on
+colorscheme torte
+EOF
  
 # Clean all cached files from any enabled repository
 sudo yum clean all
