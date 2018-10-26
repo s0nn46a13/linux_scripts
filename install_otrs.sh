@@ -1,15 +1,17 @@
+#! /usr/bin/env bash
+
+##################
+# Set OTRS version
+##################
+OTRS_VER=6.0.12-01
+
 # Update OS
 sudo yum -y update
 
-# Install common tools
-sudo yum -y install open-vm-tools yum-utils nano wget git mlocate gcc
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo yum-config-manager --enable epel
-
 #Install, configure, and start Apache
 sudo yum -y install httpd httpd-devel
-sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
+sudo systemctl daemon-reload
 sudo systemctl start httpd
 sudo systemctl enable httpd
 
@@ -55,11 +57,14 @@ y
 EOF
 
 # Install OTRS
-sudo yum -y install https://ftp.otrs.org/pub/otrs/RPMS/rhel/7/otrs-6.0.8-01.noarch.rpm
+sudo yum -y install https://ftp.otrs.org/pub/otrs/RPMS/rhel/7/otrs-${OTRS_VER}.noarch.rpm
+sudo systemctl daemon-reload
 sudo systemctl restart httpd
 
 # Check and install additional Perl Modules
 sudo yum install -y "perl(Crypt::Eksblowfish::Bcrypt)" "perl(DBD::Pg)" "perl(Encode::HanExtra)" "perl(JSON::XS)" "perl(Mail::IMAPClient)" "perl(Authen::NTLM)" "perl(ModPerl::Util)" "perl(Text::CSV_XS)" "perl(YAML::XS)"
 sudo /opt/otrs/bin/otrs.CheckModules.pl
 
-reboot
+sudo yum clean all
+sudo rm -rf /var/cache/yum
+sudo reboot
