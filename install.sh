@@ -2,8 +2,15 @@
 
 # Enable Extra Packages for Enterprise Linux (PEL), install useful tools, and run updates
 sudo yum -y install epel-release
-sudo yum -y install open-vm-tools git wget mlocate elinks yum-cron yum-utils net-tools sscep
+sudo yum -y install open-vm-tools git wget mlocate elinks yum-cron yum-utils net-tools sscep ntp ntpdate
 sudo yum -y update
+
+# Configure Network Time Protocol
+sudo systemctl daemon-reload
+sudo systemctl start ntpd
+sudo systemctl enable ntpd
+sudo ntpdate -u -s 0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org
+sudo systemctl restart ntpd
 
 # Enable colorscheme torte for user
 sudo cat << EOF >.vimrc
@@ -25,9 +32,9 @@ sudo rm -rf /var/cache/yum
 sudo sed -i 's/update_cmd = default/update_cmd = security/g' /etc/yum/yum-cron.conf
 sudo sed -i 's/apply_updates = no/apply updates = yes/g' /etc/yum/yum-cron.conf
 
+sudo systemctl daemon-reload
 sudo systemctl enable yum-cron
 sudo systemctl start yum-cron
-sudo systemctl daemon-reload
 
 # Disable SELinux
 sudo setenforce 0
