@@ -1,8 +1,5 @@
 #! /usr/bin/env bash
 
-# Set Variables
-SVR_PORT=8080
-
 # Enable Extra Packages for Enterprise Linux (PEL), install useful tools, and run updates
 sudo yum -y install epel-release
 sudo yum -y install open-vm-tools git wget mlocate elinks yum-cron yum-utils net-tools sscep ntp ntpdate setroubleshoot-server selinux-policy-devel
@@ -39,9 +36,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable yum-cron
 sudo systemctl start yum-cron
 
-# Allow port in SELinux
-sepolicy network -t http_port_t -p tcp $SVR_PORT
-#sudo setenforce 1
-#sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+# Allow port in SELinux`
+semanage port -m -t http_port_t -p tcp 8080
 
 sh add_kube.sh
