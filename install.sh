@@ -42,26 +42,25 @@ EOF
 sudo cat << EOF >/root/.vimrc
 syntax enable
 colorscheme torte
-
 set tabstop=2
 set softtabstop=2
 set expandtab
+set shiftwidth=2
+set autoindent
+set smartindent
 set number
 set showcmd
 set cursorline
-filetype indent on
 set wildmenu
 set lazyredraw
 set showmatch
 set incsearch
 set hlsearch
-nnoremap <leader><space> :nohlsearch<CR>
 set foldenable
 set foldlevelstart=10
 set foldnestmax=10
-nnoremap <space> za
 set foldmethod=indent
-let mapleader=","
+
 EOF
  
 # Clean all cached files from any enabled repository
