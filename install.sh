@@ -2,7 +2,7 @@
 
 # Enable Extra Packages for Enterprise Linux (PEL), install useful tools, and run updates
 sudo yum -y install epel-release
-sudo yum -y install open-vm-tools git wget mlocate elinks yum-cron yum-utils net-tools sscep ntp ntpdate setroubleshoot-server selinux-policy-devel
+sudo yum -y install open-vm-tools-desktop git wget mlocate elinks yum-cron yum-utils net-tools sscep ntp ntpdate setroubleshoot-server selinux-policy-devel
 sudo yum -y update
 
 # Configure Network Time Protocol
