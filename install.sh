@@ -9,7 +9,7 @@ sudo yum -y update
 sudo systemctl daemon-reload
 sudo systemctl start ntpd
 sudo systemctl enable ntpd
-sudo ntpdate -u -s 0.centos.pool.ntp.org 1.centos.pool.ntp.org 2.centos.pool.ntp.org
+sudo ntpdate -u -s 0.north-america.pool.ntp.org 1.north-america.pool.ntp.org 2.north-america.pool.ntp.org
 sudo systemctl restart ntpd
 
 # Enable colorscheme torte for user
