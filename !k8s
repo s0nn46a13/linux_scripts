@@ -1,0 +1,92 @@
+#! /bin/bash
+
+firewall-cmd --permanent --zone=public --add-port=6443/tcp # Kubernetes API server
+firewall-cmd --permanent --zone=public --add-port=2379-2380/tcp # etcd server client API
+firewall-cmd --permanent --zone=public --add-port=10250/tcp # Kubelet API
+firewall-cmd --permanent --zone=public --add-port=10251/tcp # kube-scheduler
+firewall-cmd --permanent --zone=public --add-port=10252/tcp # kube-controller-manager	
+firewall-cmd --permanent --zone=public --add-port=30000-32767/tcp # NodePort Services**	
+firewall-cmd --permanent --zone=public --add-port=6783/tcp # Weave Net
+firewall-cmd --permanent --zone=public --add-port=6783-6784/udp # Weave Net
+firewall-cmd --reload
+
+modprobe br_netfilter
+echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+echo '1' > /proc/sys/net/ipv4/ip_forward
+
+sysctl net.ipv4.ip_forward
+sysctl net.bridge.bridge-nf-call-iptables
+
+pvcreate /dev/sdb
+pvcreate /dev/sdc
+
+vgcreate vol1 /dev/sdb
+vgcreate vol2 /dev/sdc
+
+lvcreate -l 100%FREE -n data vol1
+lvcreate -l 100%FREE -n data vol2
+
+swapoff -a
+sed -i 's/^\/dev\/mapper\/centos\-swap/\#\/dev\/mapper\/centos\-swap/' /etc/fstab
+
+update-alternatives --set iptables /usr/sbin/iptables-legacy
+
+setenforce 0
+sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+yum remove -y vim-minimal
+yum install -y vim-enhanced
+yum install -y sudo
+
+cat << EOF > .vimrc
+syntax enable
+colorscheme torte
+EOF
+
+chown sonny:sonny .vimrc
+
+cat << EOF > /root/.vimrc
+syntax enable
+colorscheme torte
+EOF
+
+yum install -y epel-release
+yum install -y open-vm-tools-desktop wget mlocate elinks yum-utils net-tools
+yum update -y
+
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum install -y docker-ce docker-ce-cli containerd.io
+
+sed -i '/^ExecStart/ s/$/ --exec-opt native.cgroupdriver=systemd/' /usr/lib/systemd/system/docker.service 
+
+systemctl enable --now docker
+usermod -aG docker sonny
+
+curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+
+yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+
+yum clean all
+rm -rf /var/cache/yum
+
+sed -i 's/^KUBELET_EXTRA_ARGS=$/KUBELET_EXTRA_ARGS=--cgroup-driver=systemd/' /etc/sysconfig/kubelet
+
+systemctl enable --now kubelet
+
+cat <<EOF >  /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+sysctl --system
