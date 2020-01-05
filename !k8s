@@ -1,5 +1,9 @@
 #! /bin/bash
 
+firewall-cmd --permanent --zone=public --add-service=http
+firewall-cmd --permanent --zone=public --add-service=https
+firewall-cmd --permanent --zone=public --add-port=8080/tcp # Storidge CIO
+firewall-cmd --permanent --zone=public --add-port=9000/tcp # Storidge CIO
 firewall-cmd --permanent --zone=public --add-port=6443/tcp # Kubernetes API server
 firewall-cmd --permanent --zone=public --add-port=2379-2380/tcp # etcd server client API
 firewall-cmd --permanent --zone=public --add-port=10250/tcp # Kubelet API
